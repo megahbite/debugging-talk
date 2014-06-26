@@ -64,19 +64,16 @@
         %section
           %p Code
           %pre
-            %code.cpp{data: {trim: true}}
+            %code.ruby{data: {trim: true}}
               :plain
-                void a_function() {
-                  int i;
-                  printf("Trying to dereference a null pointer (don't try this at home!)\n");
-                  i = *(int *)0;
-                  printf("This will never be printed so we know where we got to.");
-                }
+                puts "We're about to do something that may be wrong"
+                this_function_doesnt_exist()
+                puts "We might not reach here"
           %p Output
           %pre
             :plain
-              Trying to dereference a null pointer (don't try this at home!)
-              [1]    86292 segmentation fault  ./print_debugging.o
+              We're about to do something that may be wrong
+              ./print_debugging.rb:4:in `<main>': undefined method `this_function_doesnt_exist' for main:Object (NoMethodError)
         %section
           %h3 Stack traces
           %ul
@@ -109,17 +106,68 @@
                 actionpack (4.0.5) lib/action_controller/metal/renderers.rb:90:in `block in &lt;module:Renderers&gt;'
 
         %section
-          %h3 "Debuggers"
+          %h3 Debug logs
           %ul
-            %li Debuggers are a Swiss Army Knife.
-            %li Allow us to set "breakpoints" in code that will pause a running program.
-            %li When a breakpoint statement or mark is hit we can then examine the current state of the program.
-            %li
+            %li Log all console output into a file that we can examine for unexpected output.
+            %li Where you'll often find stack traces from exceptions/errors
+            %li In Rails projects will can be found in the "log" folder
+
+        %section
+          %h3 Interactive consoles
+          %ul
+            %li Common feature with dynamic languages like Python, Ruby, Node.js etc.
+            %li.fragment Allow you to run a statement at a time and change parameters around to see what works
+            %li.fragment
+              %code irb
+              is built into Ruby,
+              %code pry
+              is a much better alternative.
+            %li.fragment
+              Most often encountered by Rails programmers when running
+              %code rails console
+
+        %section
+          %h3 Debuggers
+          %ul
+            %li Debuggers are one of the most important tools in our toolbelt.
+            %li.fragment Allow us to set "breakpoints" in code that will pause a running program.
+            %li.fragment When a breakpoint statement or mark is hit we can then examine the current state of the program.
+            %li.fragment Often drop into an interactive console as talked about previously.
+            %li.fragment
               In Ruby/Rails is provided by the
               %code debugger
               gem in Ruby versions < 2.0 and the
               %code byebug
               gem in Ruby versions >= 2.0
+
+        %section
+          %h2 Less Common or Ruby/Rails Specifc Tools
+
+        %section
+          %h3 Online Error Tracking/Reporting Tools
+          %ul
+            %li When we deploy our apps to a production system we often turn off a lot of debugging output or may not have access to logs
+            %li Online tools like Raygun allow us to keep track of errors that occur in production.
+            %li Includes our useful stack traces and also other program state.
+            %li Can notify you through numerous communication channels
+          %a{href: "http://raygun.io"}
+            %img{src: 'img/raygun_logo.png', style: "border: none; box-shadow: none; margin-left: 50px;"}
+            Raygun.io
+
+        %section
+          %h3 "Better Errors"
+          %p Better Errors is a gem for Rails that provides a better error page in your development environment.
+          %img{src: 'img/better_errors.png'}
+
+        %section
+          %h2 Some things to think about
+
+        %section
+          %ul
+            %li
+              How do we debug when the code is not running on our machine? &mdash; remote debugging
+            %li How do we debug code that isn't our own?
+            %li How do we debug when the code isn't available? (the difficulty is this is one reason why Open Source is so important)
 
     %script{src: "lib/js/head.min.js"}
     %script{src: "js/reveal.min.js"}
