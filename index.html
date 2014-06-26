@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<title>Debugging in Ruby and Rails</title>
+<meta content='Debugging processes and tools in Ruby and Rails' name='description'>
+<meta content='Megan Bowra-Dean' name='author'>
+<meta content='yes' name='apple-mobile-web-app-capable'>
+<meta content='black-translucent' name='apple-mobile-web-app-status-bar-style'>
+<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' name='viewport'>
+<link href='css/reveal.min.css' rel='stylesheet'>
+<link href='css/theme/beige.css' id='theme' rel='stylesheet'>
+<!-- For syntax highlighting -->
+<link href='lib/css/zenburn.css' rel='stylesheet'>
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+  if( window.location.search.match( /print-pdf/gi ) ) {
+    var link = document.createElement( 'link' );
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = 'css/print/pdf.css';
+    document.getElementsByTagName( 'head' )[0].appendChild( link );
+  }
+</script>
+<!--[if lt IE 9]>
+<script src="lib/js/html5shiv.js"></script>
+<![endif]-->
+</head>
+<body>
+<div class='reveal'>
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class='slides'>
+<section>
+<h1>Debugging</h1>
+<h2>The tools of the trade in Ruby/Rails</h2>
+<p>
+Megan Bowra-Dean
+<br>
+@megahbite
+</p>
+</section>
+<section>
+<h3>What is debugging?</h3>
+<ul>
+<li>The act of finding "bugs" or defects in code and removing them.</li>
+<li>Popularised as a term by Grace Hopper when she found a moth in a mainframe.</li>
+</ul>
+</section>
+<section>
+<h3>Why do we need to debug?</h3>
+<ul>
+<li>Machines do exactly what we tell them, and we're not perfect.</li>
+<li>Even if we're perfect, someone else might not be.</li>
+<li>Something is inevitably going to go wrong and our users will want it fixed.</li>
+</ul>
+</section>
+<section>
+<h3>So what do we do when we see this?</h3>
+<img src='img/rails_error.png'>
+</section>
+<section>
+<h3>Or this?</h3>
+<img src='img/windows_error.png'>
+</section>
+<section>
+<h3>Or even this?</h3>
+<img src='img/bsod.png'>
+</section>
+<section>
+<h2>Techniques, Tools and Concepts</h2>
+</section>
+<section>
+<h3>Print debugging</h3>
+<ul>
+<li>Only when we're really desperate.</li>
+<li>Generally only used these days in embedded systems (e.g. appliances)</li>
+</ul>
+</section>
+<section>
+<p>Code</p>
+<pre><code class='ruby' data-trim>puts "We're about to do something that may be wrong"
+this_function_doesnt_exist()
+puts "We might not reach here"</code></pre>
+<p>Output</p>
+<pre>We're about to do something that may be wrong
+./print_debugging.rb:4:in `<main>': undefined method `this_function_doesnt_exist' for main:Object (NoMethodError)</pre>
+</section>
+<section>
+<h3>Stack traces</h3>
+<ul>
+<li>
+Instead of relying on us putting
+<code>print</code>
+or
+<code>puts</code>
+statements in our code everywhere, stack traces tell us exactly where our code broke.
+</li>
+<li>
+Provides more context to us, allowing us to better decipher error messages.
+</li>
+</ul>
+</section>
+<section>
+<pre>NoMethodError - undefined method `edit_notes_investment_path' for #&lt;#&lt;Class:0x007f8d00b33168&gt;:0x007f8d0d351e10&gt;:
+  actionpack (4.0.5) lib/action_dispatch/routing/polymorphic_routes.rb:129:in `polymorphic_url'
+  actionpack (4.0.5) lib/action_dispatch/routing/polymorphic_routes.rb:135:in `polymorphic_path'
+  app/helpers/campaigns_helper.rb:36:in `campaign_actions'
+  app/datatables/investments_datatable.rb:2:in `campaign_actions'
+  app/datatables/investments_datatable.rb:22:in `block in data'
+  draper (1.3.0) lib/draper/delegation.rb:10:in `map'
+  app/datatables/investments_datatable.rb:20:in `data'
+  app/datatables/investments_datatable.rb:13:in `as_json'
+  activesupport (4.0.5) lib/active_support/json/encoding.rb:50:in `block in encode'
+  activesupport (4.0.5) lib/active_support/json/encoding.rb:81:in `check_for_circular_references'
+  activesupport (4.0.5) lib/active_support/json/encoding.rb:49:in `encode'
+  activesupport (4.0.5) lib/active_support/json/encoding.rb:34:in `encode'
+  activesupport (4.0.5) lib/active_support/core_ext/object/to_json.rb:16:in `to_json'
+  actionpack (4.0.5) lib/action_controller/metal/renderers.rb:90:in `block in &lt;module:Renderers&gt;'</pre>
+</section>
+<section>
+<h3>Debug logs</h3>
+<ul>
+<li>Log all console output into a file that we can examine for unexpected output.</li>
+<li>Where you'll often find stack traces from exceptions/errors</li>
+<li>In Rails projects will can be found in the "log" folder</li>
+</ul>
+</section>
+<section>
+<h3>Interactive consoles</h3>
+<ul>
+<li>Common feature with dynamic languages like Python, Ruby, Node.js etc.</li>
+<li class='fragment'>Allow you to run a statement at a time and change parameters around to see what works</li>
+<li class='fragment'>
+<code>irb</code>
+is built into Ruby,
+<code>pry</code>
+is a much better alternative.
+</li>
+<li class='fragment'>
+Most often encountered by Rails programmers when running
+<code>rails console</code>
+</li>
+</ul>
+</section>
+<section>
+<h3>Debuggers</h3>
+<ul>
+<li>Debuggers are one of the most important tools in our toolbelt.</li>
+<li class='fragment'>Allow us to set "breakpoints" in code that will pause a running program.</li>
+<li class='fragment'>When a breakpoint statement or mark is hit we can then examine the current state of the program.</li>
+<li class='fragment'>Often drop into an interactive console as talked about previously.</li>
+<li class='fragment'>
+In Ruby/Rails is provided by the
+<code>debugger</code>
+gem in Ruby versions < 2.0 and the
+<code>byebug</code>
+gem in Ruby versions >= 2.0
+</li>
+</ul>
+</section>
+<section>
+<h2>Less Common or Ruby/Rails Specifc Tools</h2>
+</section>
+<section>
+<h3>Online Error Tracking/Reporting Tools</h3>
+<ul>
+<li>When we deploy our apps to a production system we often turn off a lot of debugging output or may not have access to logs</li>
+<li>Online tools like Raygun allow us to keep track of errors that occur in production.</li>
+<li>Includes our useful stack traces and also other program state.</li>
+<li>Can notify you through numerous communication channels</li>
+</ul>
+<a href='http://raygun.io'>
+<img src='img/raygun_logo.png' style='border: none; box-shadow: none; margin-left: 50px;'>
+Raygun.io
+</a>
+</section>
+<section>
+<h3>"Better Errors"</h3>
+<p>Better Errors is a gem for Rails that provides a better error page in your development environment.</p>
+<img src='img/better_errors.png'>
+</section>
+<section>
+<h2>Some things to think about</h2>
+</section>
+<section>
+<ul>
+<li>
+How do we debug when the code is not running on our machine? &mdash; remote debugging
+</li>
+<li>How do we debug code that isn't our own?</li>
+<li>How do we debug when the code isn't available? (the difficulty is this is one reason why Open Source is so important)</li>
+</ul>
+</section>
+</div>
+</div>
+<script src='lib/js/head.min.js'></script>
+<script src='js/reveal.min.js'></script>
+<script>
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+  
+    theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+    transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+  
+    // Parallax scrolling
+    // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+    // parallaxBackgroundSize: '2100px 900px',
+  
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      // Remote control your reveal.js presentation using a touch device
+      { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+    ]
+  });
+</script>
+</body>
+</html>
